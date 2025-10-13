@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Guess The Number Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #77ced4;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-container {
+            background: #84acb8;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+        .message {
+            font-weight: bold;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Guess The Number Game</h1>
+
+        <p>Select Difficulty:</p>
+        <select id="difficulty">
+            <option value="1">Easy (1-50, 10 attempts)</option>
+            <option value="2" selected>Medium (1-100, 7 attempts)</option>
+            <option value="3">Hard (1-200, 5 attempts)</option>
+        </select>
+        <br>
+        <button onclick="startGame()">Start Game</button>
+
+        <div id="gameArea" style="display:none;">
+            <p id="rangeInfo"></p>
+            <input type="number" id="guessInput" placeholder="Enter your guess">
+            <button onclick="checkGuess()">Guess</button>
+            <p class="message" id="message"></p>
+            <p id="attemptsInfo"></p>
+            <button id="replayBtn" onclick="resetGame()" style="display:none;">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        let lowerBound, upperBound, maxAttempts, secretNumber, attempts;
+
+        function startGame() {
+            const difficulty = parseInt(document.getElementById("difficulty").value);
+
+            // Set ranges and attempts based on difficulty
+            switch(difficulty) {
+                case 1:
+                    lowerBound = 1;
+                    upperBound = 50;
+                    maxAttempts = 10;
+                    break;
+                case 2:
+                    lowerBound = 1;
+                    upperBound = 100;
+                    maxAttempts = 7;
+                    break;
+                case 3:
+                    lowerBound = 1;
+                    upperBound = 200;
+                    maxAttempts = 5;
+                    break;
+                default:
+                    lowerBound = 1;
+                    upperBound = 100;
+                    maxAttempts = 7;
+            }
+
+            secretNumber = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+            attempts = 0;
+
+            document.getElementById("gameArea").style.display = "block";
+            document.getElementById("rangeInfo").innerText = `Guess a number between ${lowerBound} and ${upperBound}`;
+            document.getElementById("message").innerText = "";
+            document.getElementById("attemptsInfo").innerText = `Attempts left: ${maxAttempts - attempts}`;
+            document.getElementById("replayBtn").style.display = "none";
+        }
+
+        function checkGuess() {
+            const guessInput = document.getElementById("guessInput");
+            let guess = parseInt(guessInput.value);
+            attempts++;
+
+            if (isNaN(guess) || guess < lowerBound || guess > upperBound) {
+                document.getElementById("message").innerText = `Please enter a number between ${lowerBound} and ${upperBound}`;
+                attempts--;
+                return;
+            }
+
+            if (guess < secretNumber) {
+                document.getElementById("message").innerText = "Too low!";
+            } else if (guess > secretNumber) {
+                document.getElementById("message").innerText = "Too high!";
+            } else {
+                document.getElementById("message").innerText = `🎉 Congratulations! You guessed it in ${attempts} attempts.`;
+                endGame();
+                return;
+            }
+
+            if (attempts == 3) {
+                document.getElementById("message").innerText += ` Hint: The number is ${secretNumber % 2 === 0 ? "even." : "odd."}`;
+            }
+
+            if (attempts >= maxAttempts) {
+                document.getElementById("message").innerText = `😞 Game over! The number was ${secretNumber}.`;
+                endGame();
+            }
+
+            document.getElementById("attemptsInfo").innerText = `Attempts left: ${maxAttempts - attempts}`;
+            guessInput.value = "";
+            guessInput.focus();
+        }
+
+        function endGame() {
+            document.getElementById("replayBtn").style.display = "inline-block";
+        }
+
+        function resetGame() {
+            document.getElementById("gameArea").style.display = "none";
+            document.getElementById("guessInput").value = "";
+        }
+    </script>
+</body>
+</html>
